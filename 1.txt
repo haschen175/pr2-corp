@@ -1,0 +1,78 @@
+using System;
+
+class Program
+{
+    static double ExpMaclaurin(double x, double epsilon, int maxIterations = 1000)
+    {
+        if (epsilon <= 0)
+            throw new ArgumentException("Точность должна быть положительной.");
+
+        double sum = 1.0;
+        double term = 1.0;
+        int n = 1;
+
+        while (n <= maxIterations)
+        {
+            term *= x / n;
+            if (Math.Abs(term) < epsilon)
+                break;
+            sum += term;
+            n++;
+        }
+
+        if (n > maxIterations)
+            throw new InvalidOperationException($"Не удалось достичь точности {epsilon} за {maxIterations} итераций.");
+
+        return sum;
+    }
+
+    static double GetNthTermExp(double x, int n)
+    {
+        if (n < 0)
+            throw new ArgumentException("Номер члена должен быть неотрицательным.");
+
+        double term = 1.0;
+        for (int i = 1; i <= n; i++)
+        {
+            term *= x / i;
+        }
+        return term;
+    }
+
+    static void Main()
+    {
+        try
+        {
+            Console.Write("Введите x: ");
+            if (!double.TryParse(Console.ReadLine(), out double x))
+            {
+                Console.WriteLine("Некорректное значение x.");
+                return;
+            }
+
+            Console.Write("Введите точность (должна быть < 0.01 и > 0): ");
+            if (!double.TryParse(Console.ReadLine(), out double epsilon) || epsilon <= 0 || epsilon >= 0.01)
+            {
+                Console.WriteLine("Точность должна быть положительной и меньше 0.01.");
+                return;
+            }
+
+            double result = ExpMaclaurin(x, epsilon);
+            Console.WriteLine($"Значение e^{x} с точностью {epsilon}: {result:F10}");
+
+            Console.Write("\nВведите номер члена ряда (n ≥ 0): ");
+            if (!int.TryParse(Console.ReadLine(), out int n) || n < 0)
+            {
+                Console.WriteLine("Некорректный номер члена.");
+                return;
+            }
+
+            double nthTerm = GetNthTermExp(x, n);
+            Console.WriteLine($"Значение {n}-го члена ряда: {nthTerm:E10}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
+    }
+}
